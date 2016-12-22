@@ -5,5 +5,6 @@
  * and open the template in the editor.
  */
 
+chdir(dirname(__DIR__));
 
-require __DIR__ . '/vendor/autoload.php';
+include 'src/index.php';
