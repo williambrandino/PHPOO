@@ -12,15 +12,22 @@
  */
 class Cliente
 {
+    public $id;
     public $nome;
     public $documento;
     public $endereco;
 
-    public function __construct($nome, $documento, $endereco)
+    public function __construct($id,$nome, $documento, $endereco)
     {
+        $this->id        = $id;
         $this->nome      = $nome;
         $this->documento = $documento;
         $this->endereco  = $endereco;
+    }
+
+    function getId()
+    {
+        return $this->id;
     }
 
     function getNome()

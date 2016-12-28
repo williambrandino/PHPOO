@@ -1,12 +1,12 @@
 <?php
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 require 'Cliente.php';
 $arrayClientes = array(
     0 => array(
@@ -61,39 +61,113 @@ $arrayClientes = array(
     )
 );
 
+if (filter_input(INPUT_POST, 'ajax',FILTER_VALIDATE_BOOLEAN)) {
+    $id = filter_input(INPUT_POST, 'linha');
+    extract($arrayClientes[$id]);
+
+    $resultado = new Cliente($id, $nome, $documento, $endereco);
+
+    echo json_encode(array(
+        "ok" => true,
+        "nome" => $resultado->getNome(),
+        "documento" => $resultado->getDocumento(),
+        "endereco" => $resultado->getEndereco(),
+        )
+    );
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <title>PHP Orientado a Objeto - Ex01</title>
+<title>PHP Orientado a Objeto - Ex01</title>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet"  href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css">
+
+<script type="text/javascript">
+$(function(){
+    $(".table").DataTable({
+        searching: false,
+        paging: false,
+        info:false
+    });
+    $("button[id^=linha_]").click(function(){
+        //$("#myModal").modal();
+        var valor = $(this).attr("id");
+        var separa = valor.split("_");
+
+        $.ajax({
+            url:"index.php",
+            type:"POST",
+            dataType:"JSON",
+            data:{
+                ajax:true,
+                acao:"modal",
+                linha:separa[1]
+            }
+        })
+        .done(function(data){
+            if (data.ok) {
+                $("#nomeAjax").text(data.nome);
+                $("#enderecoAjax").text(data.endereco);
+                $("#documentoAjax").text(data.documento);
+
+                $("#myModal").modal();
+            }
+        });
+    });
+});
+</script>
+
 </head>
 <body>
     <div class="container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nome</th>
-            </tr>
-        </thead>
-        <tbody>
-<?php
-foreach ($arrayClientes as $key => $value) {
-    $linha = new Cliente($value['nome'],$value['documento'],$value['endereco']);
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nome</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                foreach ($arrayClientes as $key => $value) {
+                    $linha = new Cliente($key, $value['nome'],
+                        $value['documento'], $value['endereco']);
+                    ?>
+                    <tr>
+                        <td><?=$linha->getId()?></td>
+                        <td><button type="button" class="btn btn-link" id="linha_<?=$linha->getId()?>"><?=$linha->getNome()?></button></td>
+                    </tr>
+                    <?php
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Dados de: <span id="nomeAjax"></span></h4>
+                </div>
+                <div class="modal-body">
+                    Endereço: <span id="enderecoAjax"></span><br>
+                    Documento: <span id="documentoAjax"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
 
-?>
-            <tr>
-                <td><?=$linha->getNome()?></td>
-            </tr>
-<?php
-}
-?>
-        </tbody>
-    </table>
+        </div>
     </div>
 </body>
 </html>
