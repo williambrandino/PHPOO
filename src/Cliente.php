@@ -12,36 +12,68 @@
  */
 class Cliente
 {
-    public $id;
-    public $nome;
-    public $documento;
-    public $endereco;
+    protected $id;
+    protected $nome;
+    protected $endereco;
+    protected $documento;
+    private $tipoPessoa;
 
-    public function __construct($id,$nome, $documento, $endereco)
-    {
-        $this->id        = $id;
-        $this->nome      = $nome;
-        $this->documento = $documento;
-        $this->endereco  = $endereco;
-    }
-
-    function getId()
+    public function getId()
     {
         return $this->id;
     }
 
-    function getNome()
+    public function getNome()
     {
         return $this->nome;
     }
 
-    function getDocumento()
+    public function getEndereco()
+    {
+        return $this->endereco;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function setNome($nome)
+    {
+        $this->nome = $nome;
+        return $this;
+    }
+
+    public function setEndereco($endereco)
+    {
+        $this->endereco = $endereco;
+        return $this;
+    }
+
+    public function getDocumento()
     {
         return $this->documento;
     }
 
-    function getEndereco()
+    public function setDocumento($documento)
     {
-        return $this->endereco;
+        $this->documento = $documento;
+        return $this;
+    }
+
+    public function tipoPessoa($documento)
+    {
+
+        switch (strlen($documento)) {
+            case 11:
+                $tipoPessoa = "Física";
+                break;
+            case 14:
+                $tipoPessoa = "Jurídica";
+                break;
+        }
+
+        return $tipoPessoa;
     }
 }

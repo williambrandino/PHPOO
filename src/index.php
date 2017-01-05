@@ -7,7 +7,10 @@
 
 
 require __DIR__.'/../vendor/autoload.php';
-require 'Cliente.php';
+require_once 'Cliente.php';
+require_once 'ClientePF.php';
+require_once 'ClientePJ.php';
+
 $arrayClientes = array(
     0 => array(
         "nome" => "Adriana Barros de Carvalho",
@@ -16,13 +19,15 @@ $arrayClientes = array(
     ),
     1 => array(
         "nome" => "Dario Esteves de Faria",
-        "documento" => "42589655601",
-        "endereco" => "Rua Jericó, 390, Betel, Marília-SP"
+        "documento" => "42589655000115",
+        "endereco" => "Rua Jericó, 390, Betel, Marília-SP",
+        "cobranca" => "Rua Ananias Cabral, 244, Centro, São Paulo-SP"
     ),
     2 => array(
         "nome" => "Geraldo Henrique Ignácio",
-        "documento" => "48559615230",
-        "endereco" => "Rua Antonieta Altenfelder, 90, Santa Antonieta, Marília-SP"
+        "documento" => "48559615000101",
+        "endereco" => "Rua Antonieta Altenfelder, 90, Santa Antonieta, Marília-SP",
+        "cobranca" => "Avenida Paulista,33,Consolação, São Paulo-SP"
     ),
     3 => array(
         "nome" => "João Kléber de Lima",
@@ -36,8 +41,9 @@ $arrayClientes = array(
     ),
     5 => array(
         "nome" => "Paulo Quincas da Rocha",
-        "documento" => "14587455685",
-        "endereco" => "Rua Antonio Spressão, 3390, Parque das Nações, Marília-SP"
+        "documento" => "14587455000142",
+        "endereco" => "Rua Antonio Spressão, 3390, Parque das Nações, Marília-SP",
+        "cobranca" => "Avenida Sampaio Vidal, 2010, Centro, Marília-SP"
     ),
     6 => array(
         "nome" => "Samara Tobias Urbano",
@@ -56,8 +62,9 @@ $arrayClientes = array(
     ),
     9 => array(
         "nome" => "Zuleika Antunes",
-        "documento" => "22945833022",
-        "endereco" => "Rua Giacomo Zangarinni, 223, Santa Gertrudes, Marília-SP"
+        "documento" => "22945833000122",
+        "endereco" => "Rua Giacomo Zangarinni, 223, Santa Gertrudes, Marília-SP",
+        "cobranca" => "Rua Giacomo Zangarinni, 450, Santa Gertrudes II, Marília-SP"
     )
 );
 
@@ -65,13 +72,28 @@ if (filter_input(INPUT_POST, 'ajax',FILTER_VALIDATE_BOOLEAN)) {
     $id = filter_input(INPUT_POST, 'linha');
     extract($arrayClientes[$id]);
 
-    $resultado = new Cliente($id, $nome, $documento, $endereco);
+    $resultado = new Cliente();
+    $resultado->setId($id)->setNome($nome)->setEndereco($endereco)->setDocumento($documento);
+
+    switch ($resultado->tipoPessoa($resultado->getDocumento())) {
+        case "Física":
+            $tipo = new ClientePF();
+
+            break;
+
+        case "Jurídica":
+            $tipo = new ClientePJ();
+            $tipo->setCobranca($cobranca);
+            break;
+    }
 
     echo json_encode(array(
         "ok" => true,
         "nome" => $resultado->getNome(),
         "documento" => $resultado->getDocumento(),
         "endereco" => $resultado->getEndereco(),
+        "pontuacao" => $tipo->pontuacaoCliente($resultado->getId()),
+        "cobranca" => $tipo->getEnderecoCobranca(),
         )
     );
     exit;
@@ -80,7 +102,7 @@ if (filter_input(INPUT_POST, 'ajax',FILTER_VALIDATE_BOOLEAN)) {
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<title>PHP Orientado a Objeto - Ex01</title>
+<title>PHP Orientado a Objeto - Ex02</title>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
@@ -117,6 +139,8 @@ $(function(){
                 $("#nomeAjax").text(data.nome);
                 $("#enderecoAjax").text(data.endereco);
                 $("#documentoAjax").text(data.documento);
+                $("#pontuacaoAjax").text(data.pontuacao);
+                $("#cobrancaAjax").text(data.cobranca);
 
                 $("#myModal").modal();
             }
@@ -132,22 +156,26 @@ $(function(){
             <thead>
                 <tr>
                     <th>Código</th>
+                    <th>Tipo Pessoa</th>
                     <th>Nome</th>
                 </tr>
             </thead>
             <tbody>
-                <?php
+<?php
                 foreach ($arrayClientes as $key => $value) {
-                    $linha = new Cliente($key, $value['nome'],
-                        $value['documento'], $value['endereco']);
-                    ?>
+                    $linha = new Cliente();
+                    $linha->setId($key)->setNome($value['nome'])->setDocumento($value["documento"]);
+
+                    
+?>
                     <tr>
                         <td><?=$linha->getId()?></td>
+                        <td><?=$linha->tipoPessoa($linha->getDocumento())?></td>
                         <td><button type="button" class="btn btn-link" id="linha_<?=$linha->getId()?>"><?=$linha->getNome()?></button></td>
                     </tr>
-                    <?php
+<?php
                 }
-                ?>
+?>
             </tbody>
         </table>
     </div>
@@ -159,8 +187,10 @@ $(function(){
                     <h4 class="modal-title">Dados de: <span id="nomeAjax"></span></h4>
                 </div>
                 <div class="modal-body">
-                    Endereço: <span id="enderecoAjax"></span><br>
-                    Documento: <span id="documentoAjax"></span>
+                    Endereço: <span id="enderecoAjax"></span><br />
+                    Documento: <span id="documentoAjax"></span><br />
+                    Pontuação Empresa: <span id="pontuacaoAjax"></span><br />
+                    Endereço de Cobrança: <span id="cobrancaAjax"></span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
