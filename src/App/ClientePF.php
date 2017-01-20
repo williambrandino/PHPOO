@@ -4,36 +4,32 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+namespace Cliente\App;
 
+use Cliente\App\Cliente as ClientePessoa;
 /**
- * Description of ClientePJ
+ * Description of ClientePF
  *
  * @author Brandy
  */
-class ClientePJ extends Cliente implements ClienteInterface
+class ClientePF extends ClientePessoa
 {
-
-    private $cobranca;
+    
     public function pontuacaoCliente($id)
     {
         switch ($id){
             case $id < 5:
-                $pontuacao = "***";
+                $pontuacao = "*";
                 break;
             case $id >= 5:
-                $pontuacao = "*****";
+                $pontuacao = "**";
                 break;
         }
         return $pontuacao;
     }
-    public function setCobranca($cobranca)
-    {
-        $this->cobranca = $cobranca;
-        return $this;
-    }
 
-        public function getEnderecoCobranca()
+    public function getEnderecoCobranca()
     {
-        return $this->cobranca;
+        return "O Mesmo";
     }
 }

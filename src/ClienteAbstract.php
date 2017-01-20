@@ -5,18 +5,19 @@
  * and open the template in the editor.
  */
 
+namespace Cliente;
+
 /**
- * Description of Cliente
+ * Description of ClienteAbstract
  *
  * @author Brandy
  */
-class Cliente
+abstract class ClienteAbstract
 {
     protected $id;
     protected $nome;
     protected $endereco;
     protected $documento;
-    private $tipoPessoa;
 
     public function getId()
     {
@@ -76,4 +77,7 @@ class Cliente
 
         return $tipoPessoa;
     }
+
+    abstract public function pontuacaoCliente($id);
+    abstract public function getEnderecoCobranca();
 }

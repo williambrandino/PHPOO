@@ -5,11 +5,7 @@
  * and open the template in the editor.
  */
 
-
-require __DIR__.'/../vendor/autoload.php';
-require_once 'Cliente.php';
-require_once 'ClientePF.php';
-require_once 'ClientePJ.php';
+include 'vendor/autoload.php';
 
 $arrayClientes = array(
     0 => array(
@@ -72,17 +68,17 @@ if (filter_input(INPUT_POST, 'ajax',FILTER_VALIDATE_BOOLEAN)) {
     $id = filter_input(INPUT_POST, 'linha');
     extract($arrayClientes[$id]);
 
-    $resultado = new Cliente();
+    $resultado = new Cliente\App\Cliente();
     $resultado->setId($id)->setNome($nome)->setEndereco($endereco)->setDocumento($documento);
 
     switch ($resultado->tipoPessoa($resultado->getDocumento())) {
         case "Física":
-            $tipo = new ClientePF();
+            $tipo = new Cliente\App\ClientePF();
 
             break;
 
         case "Jurídica":
-            $tipo = new ClientePJ();
+            $tipo = new Cliente\App\ClientePJ();
             $tipo->setCobranca($cobranca);
             break;
     }
@@ -163,7 +159,7 @@ $(function(){
             <tbody>
 <?php
                 foreach ($arrayClientes as $key => $value) {
-                    $linha = new Cliente();
+                    $linha = new Cliente\App\Cliente();
                     $linha->setId($key)->setNome($value['nome'])->setDocumento($value["documento"]);
 
                     
