@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 
-include 'vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 $arrayClientes = array(
     0 => array(

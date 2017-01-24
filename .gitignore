@@ -1,2 +1,4 @@
 NetBeans/
-/nbproject/private/
+nbproject/
+vendor/
+composer.phar
